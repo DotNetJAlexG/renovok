@@ -15,10 +15,10 @@ namespace CheckoutKata.Repository
     using System.Data.Entity.Core.Objects;
     using System.Linq;
     
-    public partial class OnlineStoreEntities : DbContext
+    public partial class OnlineStoreEntities3 : DbContext
     {
-        public OnlineStoreEntities()
-            : base("name=OnlineStoreEntities")
+        public OnlineStoreEntities3()
+            : base("name=OnlineStoreEntities3")
         {
         }
     
@@ -28,6 +28,19 @@ namespace CheckoutKata.Repository
         }
     
     
+        public virtual int DeleteCartItem(Nullable<System.Guid> cartid, string sku)
+        {
+            var cartidParameter = cartid.HasValue ?
+                new ObjectParameter("cartid", cartid) :
+                new ObjectParameter("cartid", typeof(System.Guid));
+    
+            var skuParameter = sku != null ?
+                new ObjectParameter("sku", sku) :
+                new ObjectParameter("sku", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("DeleteCartItem", cartidParameter, skuParameter);
+        }
+    
         public virtual ObjectResult<GetCartByCartId_Result> GetCartByCartId(Nullable<System.Guid> id)
         {
             var idParameter = id.HasValue ?
@@ -35,6 +48,19 @@ namespace CheckoutKata.Repository
                 new ObjectParameter("id", typeof(System.Guid));
     
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetCartByCartId_Result>("GetCartByCartId", idParameter);
+        }
+    
+        public virtual ObjectResult<GetCartItemBySku_Result> GetCartItemBySku(Nullable<System.Guid> cartid, string sku)
+        {
+            var cartidParameter = cartid.HasValue ?
+                new ObjectParameter("cartid", cartid) :
+                new ObjectParameter("cartid", typeof(System.Guid));
+    
+            var skuParameter = sku != null ?
+                new ObjectParameter("sku", sku) :
+                new ObjectParameter("sku", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetCartItemBySku_Result>("GetCartItemBySku", cartidParameter, skuParameter);
         }
     
         public virtual ObjectResult<GetInventory_Result> GetInventory()
@@ -47,7 +73,7 @@ namespace CheckoutKata.Repository
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction<GetOffers_Result>("GetOffers");
         }
     
-        public virtual int InsertCartItem(Nullable<System.Guid> id, string sku, Nullable<int> quantity)
+        public virtual int InsertCartItem(Nullable<System.Guid> id, string sku, Nullable<int> quantity, Nullable<decimal> lineitemtotal)
         {
             var idParameter = id.HasValue ?
                 new ObjectParameter("id", id) :
@@ -61,7 +87,32 @@ namespace CheckoutKata.Repository
                 new ObjectParameter("quantity", quantity) :
                 new ObjectParameter("quantity", typeof(int));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("InsertCartItem", idParameter, skuParameter, quantityParameter);
+            var lineitemtotalParameter = lineitemtotal.HasValue ?
+                new ObjectParameter("lineitemtotal", lineitemtotal) :
+                new ObjectParameter("lineitemtotal", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("InsertCartItem", idParameter, skuParameter, quantityParameter, lineitemtotalParameter);
+        }
+    
+        public virtual int UpdateCartItem(Nullable<System.Guid> cartid, string sku, Nullable<int> quantity, Nullable<decimal> lineitemtotal)
+        {
+            var cartidParameter = cartid.HasValue ?
+                new ObjectParameter("cartid", cartid) :
+                new ObjectParameter("cartid", typeof(System.Guid));
+    
+            var skuParameter = sku != null ?
+                new ObjectParameter("sku", sku) :
+                new ObjectParameter("sku", typeof(string));
+    
+            var quantityParameter = quantity.HasValue ?
+                new ObjectParameter("quantity", quantity) :
+                new ObjectParameter("quantity", typeof(int));
+    
+            var lineitemtotalParameter = lineitemtotal.HasValue ?
+                new ObjectParameter("lineitemtotal", lineitemtotal) :
+                new ObjectParameter("lineitemtotal", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("UpdateCartItem", cartidParameter, skuParameter, quantityParameter, lineitemtotalParameter);
         }
     }
 }

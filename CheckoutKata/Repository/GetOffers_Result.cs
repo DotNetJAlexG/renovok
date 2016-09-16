@@ -14,6 +14,7 @@ namespace CheckoutKata.Repository
     public partial class GetOffers_Result
     {
         public int StockId { get; set; }
+        public string SKU { get; set; }
         public decimal OfferPrice { get; set; }
         public int OfferQuantity { get; set; }
     }

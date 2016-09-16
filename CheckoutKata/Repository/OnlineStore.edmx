@@ -5,8 +5,16 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
       <Schema Namespace="OnlineStoreModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <Function Name="DeleteCartItem" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="cartid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="sku" Type="varchar" Mode="In" />
+        </Function>
         <Function Name="GetCartByCartId" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="id" Type="uniqueidentifier" Mode="In" />
+        </Function>
+        <Function Name="GetCartItemBySku" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="cartid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="sku" Type="varchar" Mode="In" />
         </Function>
         <Function Name="GetInventory" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
         <Function Name="GetOffers" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo" />
@@ -14,6 +22,13 @@
           <Parameter Name="id" Type="uniqueidentifier" Mode="In" />
           <Parameter Name="sku" Type="varchar" Mode="In" />
           <Parameter Name="quantity" Type="int" Mode="In" />
+          <Parameter Name="lineitemtotal" Type="decimal" Mode="In" />
+        </Function>
+        <Function Name="UpdateCartItem" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
+          <Parameter Name="cartid" Type="uniqueidentifier" Mode="In" />
+          <Parameter Name="sku" Type="varchar" Mode="In" />
+          <Parameter Name="quantity" Type="int" Mode="In" />
+          <Parameter Name="lineitemtotal" Type="decimal" Mode="In" />
         </Function>
         <EntityContainer Name="OnlineStoreModelStoreContainer" />
       </Schema>
@@ -21,9 +36,17 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="OnlineStoreModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityContainer Name="OnlineStoreEntities" annotation:LazyLoadingEnabled="true" >
+        <EntityContainer Name="OnlineStoreEntities3" annotation:LazyLoadingEnabled="true" >
+          <FunctionImport Name="DeleteCartItem">
+            <Parameter Name="cartid" Mode="In" Type="Guid" />
+            <Parameter Name="sku" Mode="In" Type="String" />
+          </FunctionImport>
           <FunctionImport Name="GetCartByCartId" ReturnType="Collection(OnlineStoreModel.GetCartByCartId_Result)">
             <Parameter Name="id" Mode="In" Type="Guid" />
+          </FunctionImport>
+          <FunctionImport Name="GetCartItemBySku" ReturnType="Collection(OnlineStoreModel.GetCartItemBySku_Result)">
+            <Parameter Name="cartid" Mode="In" Type="Guid" />
+            <Parameter Name="sku" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="GetInventory" ReturnType="Collection(OnlineStoreModel.GetInventory_Result)" />
           <FunctionImport Name="GetOffers" ReturnType="Collection(OnlineStoreModel.GetOffers_Result)" />
@@ -31,6 +54,13 @@
             <Parameter Name="id" Mode="In" Type="Guid" />
             <Parameter Name="sku" Mode="In" Type="String" />
             <Parameter Name="quantity" Mode="In" Type="Int32" />
+            <Parameter Name="lineitemtotal" Mode="In" Type="Decimal" />
+          </FunctionImport>
+          <FunctionImport Name="UpdateCartItem">
+            <Parameter Name="cartid" Mode="In" Type="Guid" />
+            <Parameter Name="sku" Mode="In" Type="String" />
+            <Parameter Name="quantity" Mode="In" Type="Int32" />
+            <Parameter Name="lineitemtotal" Mode="In" Type="Decimal" />
           </FunctionImport>
         </EntityContainer>
         <ComplexType Name="GetCartByCartId_Result">
@@ -38,6 +68,16 @@
           <Property Type="String" Name="SKU" Nullable="false" MaxLength="10" />
           <Property Type="Int32" Name="Quantity" Nullable="false" />
           <Property Type="Decimal" Name="Price" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Int32" Name="StockItemId" Nullable="false" />
+          <Property Type="Decimal" Name="LineItemTotal" Nullable="false" Precision="18" Scale="2" />
+        </ComplexType>
+        <ComplexType Name="GetCartItemBySku_Result">
+          <Property Type="Guid" Name="CartId" Nullable="false" />
+          <Property Type="String" Name="SKU" Nullable="false" MaxLength="10" />
+          <Property Type="Decimal" Name="Price" Nullable="false" Precision="18" Scale="2" />
+          <Property Type="Int32" Name="Quantity" Nullable="false" />
+          <Property Type="Int32" Name="StockItemId" Nullable="false" />
+          <Property Type="Decimal" Name="LineItemTotal" Nullable="false" Precision="18" Scale="2" />
         </ComplexType>
         <ComplexType Name="GetInventory_Result">
           <Property Type="Int32" Name="Id" Nullable="false" />
@@ -46,6 +86,7 @@
         </ComplexType>
         <ComplexType Name="GetOffers_Result">
           <Property Type="Int32" Name="StockId" Nullable="false" />
+          <Property Type="String" Name="SKU" Nullable="false" MaxLength="10" />
           <Property Type="Decimal" Name="OfferPrice" Nullable="false" Precision="18" Scale="2" />
           <Property Type="Int32" Name="OfferQuantity" Nullable="false" />
         </ComplexType>
@@ -54,7 +95,8 @@
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="OnlineStoreModelStoreContainer" CdmEntityContainer="OnlineStoreEntities" >
+        <EntityContainerMapping StorageEntityContainer="OnlineStoreModelStoreContainer" CdmEntityContainer="OnlineStoreEntities3" >
+          <FunctionImportMapping FunctionImportName="DeleteCartItem" FunctionName="OnlineStoreModel.Store.DeleteCartItem" />
           <FunctionImportMapping FunctionImportName="GetCartByCartId" FunctionName="OnlineStoreModel.Store.GetCartByCartId">
             <ResultMapping>
               <ComplexTypeMapping TypeName="OnlineStoreModel.GetCartByCartId_Result">
@@ -62,6 +104,20 @@
                 <ScalarProperty Name="SKU" ColumnName="SKU" />
                 <ScalarProperty Name="Quantity" ColumnName="Quantity" />
                 <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="StockItemId" ColumnName="StockItemId" />
+                <ScalarProperty Name="LineItemTotal" ColumnName="LineItemTotal" />
+              </ComplexTypeMapping>
+            </ResultMapping>
+          </FunctionImportMapping>
+          <FunctionImportMapping FunctionImportName="GetCartItemBySku" FunctionName="OnlineStoreModel.Store.GetCartItemBySku">
+            <ResultMapping>
+              <ComplexTypeMapping TypeName="OnlineStoreModel.GetCartItemBySku_Result">
+                <ScalarProperty Name="CartId" ColumnName="CartId" />
+                <ScalarProperty Name="SKU" ColumnName="SKU" />
+                <ScalarProperty Name="Price" ColumnName="Price" />
+                <ScalarProperty Name="Quantity" ColumnName="Quantity" />
+                <ScalarProperty Name="StockItemId" ColumnName="StockItemId" />
+                <ScalarProperty Name="LineItemTotal" ColumnName="LineItemTotal" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
@@ -78,12 +134,14 @@
             <ResultMapping>
               <ComplexTypeMapping TypeName="OnlineStoreModel.GetOffers_Result">
                 <ScalarProperty Name="StockId" ColumnName="StockId" />
+                <ScalarProperty Name="SKU" ColumnName="SKU" />
                 <ScalarProperty Name="OfferPrice" ColumnName="OfferPrice" />
                 <ScalarProperty Name="OfferQuantity" ColumnName="OfferQuantity" />
               </ComplexTypeMapping>
             </ResultMapping>
           </FunctionImportMapping>
           <FunctionImportMapping FunctionImportName="InsertCartItem" FunctionName="OnlineStoreModel.Store.InsertCartItem" />
+          <FunctionImportMapping FunctionImportName="UpdateCartItem" FunctionName="OnlineStoreModel.Store.UpdateCartItem" />
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

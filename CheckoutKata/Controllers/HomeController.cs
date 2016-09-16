@@ -6,13 +6,14 @@ using System.Web.Mvc;
 
 namespace CheckoutKata.Controllers
 {
-	public class HomeController : Controller
-	{
-		public ActionResult Index()
-		{
-			ViewBag.Title = "Home Page";
-
-			return View();
-		}
-	}
+    public class HomeController : Controller
+    {
+        // GET: Home
+        public ActionResult Index()
+        {
+            ViewBag.InitModule = "CheckoutKataApp"; // for ng-app
+            ViewBag.Title = "Checkout Kata";
+            return View();
+        }
+    }
 }

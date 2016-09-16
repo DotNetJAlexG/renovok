@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <!-- Change title, description and keywords -->
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/angular-route.min.js"></script>
+    @RenderSection("PageScripts")
+    <style>
+        .hover { cursor: pointer; color: green; }
+        .bold { font-weight: bold; }
+    </style>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+    <div ng-app="CheckoutKataApp">
+        @RenderBody()
+    </div>
+</body>
+</html>

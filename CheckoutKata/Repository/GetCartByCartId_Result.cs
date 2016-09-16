@@ -17,5 +17,7 @@ namespace CheckoutKata.Repository
         public string SKU { get; set; }
         public int Quantity { get; set; }
         public decimal Price { get; set; }
+        public int StockItemId { get; set; }
+        public decimal LineItemTotal { get; set; }
     }
 }
